@@ -37,4 +37,8 @@ app.use((req, res, next) => {
 app.use('/users', routeUsers);
 app.use('/cards', routeCards);
 
+app.use((req, res) => {
+  res.status(ERROR_NOT_FOUND).send({ message: 'Страницы по запрошенному URL не существует' });
+});
+
 app.listen(PORT);
