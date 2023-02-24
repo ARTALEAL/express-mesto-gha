@@ -8,21 +8,14 @@ const routeCards = require('./routes/cards');
 const { PORT = 3000 } = process.env;
 mongoose.set('strictQuery', true);
 
-const app = express();
-
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
+const app = express();
+
 console.log('test');
-
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5d8b8592978f8bd833ca8133'
-  };
-
-  next();
-});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
