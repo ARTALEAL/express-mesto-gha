@@ -1,15 +1,18 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 const { errors } = require('celebrate');
 
 const routeSignup = require('./routes/users');
 const routeSignin = require('./routes/users');
 
+const auth = require('./middlewares/auth');
+
 const routeUsers = require('./routes/users');
 const routeCards = require('./routes/cards');
 
-const { ERROR_NOT_FOUND } = require('./errors/errors');
+const NotFoundError = require('./errors/NotFoundError');
 const errorHandler = require('./middlewares/errorHandler');
 
 const { PORT = 3000 } = process.env;
@@ -21,26 +24,20 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 });
 
 const app = express();
+app.use(helmet());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '63f8ff39ae83049155aba99d',
-  };
-
-  next();
-});
-
 app.use('/', routeSignup);
 app.use('/', routeSignin);
+
+app.use(auth);
+
 app.use('/users', routeUsers);
 app.use('/cards', routeCards);
 
-app.use((req, res) => {
-  res.status(ERROR_NOT_FOUND).send({ message: 'Страницы по запрошенному URL не существует' });
-});
+app.use((req, res, next) => next(new NotFoundError('Страницы по запрошенному URL не существует')));
 
 app.use(errors());
 app.use(errorHandler);

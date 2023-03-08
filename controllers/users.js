@@ -8,13 +8,6 @@ const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConfilctError');
 const InaccurateDataError = require('../errors/InaccurateDataError');
 
-// Old errors delete
-const {
-  ERROR_INACCURATE_DATA,
-  ERROR_NOT_FOUND,
-  ERROR_INTERNAL_SERVER,
-} = require('../errors/errors');
-
 function createUser(req, res, next) {
   const {
     email, password, name, about, avatar,
@@ -38,16 +31,6 @@ function createUser(req, res, next) {
         next(err);
       }
     });
-  // User
-  //   .create({
-  //     email, password, name, about, avatar,
-  //   })
-  //   .then((user) => res.send({ data: user }))
-  //   .catch((err) => (
-  //     err.name === 'ValidationError'
-  //       ? res.status(ERROR_INACCURATE_DATA).send({ message: 'Переданы некорректные данные при создании пользователя' })
-  //       : res.status(ERROR_INTERNAL_SERVER).send({ message: 'На сервере произошла ошибка' })
-  //   ));
 }
 
 function loginUser(req, res, next) {
@@ -65,33 +48,54 @@ function loginUser(req, res, next) {
     .catch(next);
 }
 
-function getUsersInfo(req, res) {
+function getUsersInfo(req, res, next) {
   User
     .find({})
-    .then((users) => res.send({ data: users }))
-    .catch(() => res.status(ERROR_INTERNAL_SERVER).send({ message: 'На сервере произошла ошибка' }));
+    .then((users) => res.send({ users }))
+    .catch(next);
 }
 
-function getUserInfo(req, res) {
+function getUserInfo(req, res, next) {
   const { id } = req.params;
 
   User
     .findById(id)
     .then((user) => {
-      if (user) return res.send({ data: user });
+      if (user) return res.send({ user });
 
-      return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
+      throw new NotFoundError('Пользователь с таким id не найден');
     })
-    .catch((err) => (
-      err.name === 'CastError'
-        ? res.status(ERROR_INACCURATE_DATA).send({ message: 'Передан некорректный id' })
-        : res.status(ERROR_INTERNAL_SERVER).send({ message: 'На сервере произошла ошибка' })
-    ));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new InaccurateDataError('Передан некорректный id'));
+      } else {
+        next(err);
+      }
+    });
 }
 
-function setUserInfo(req, res) {
+function getCurrentUserInfo(req, res, next) {
+  const { userId } = req.user;
+
+  User
+    .findById(userId)
+    .then((user) => {
+      if (user) return res.send({ user });
+
+      throw new NotFoundError('Пользователь с таким id не найден');
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new InaccurateDataError('Передан некорректный id'));
+      } else {
+        next(err);
+      }
+    });
+}
+
+function setUserInfo(req, res, next) {
   const { name, about } = req.body;
-  const { _id: userId } = req.user;
+  const { userId } = req.user;
 
   User
     .findByIdAndUpdate(
@@ -106,22 +110,22 @@ function setUserInfo(req, res) {
       },
     )
     .then((user) => {
-      if (user) return res.send({ data: user });
+      if (user) return res.send({ user });
 
-      return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
+      throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(ERROR_INACCURATE_DATA).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        next(new InaccurateDataError('Переданы некорректные данные при обновлении профиля пользователя'));
+      } else {
+        next(err);
       }
-
-      return res.status(ERROR_INTERNAL_SERVER).send({ message: 'На сервере произошла ошибка' });
     });
 }
 
-function setUserAvatar(req, res) {
+function setUserAvatar(req, res, next) {
   const { avatar } = req.body;
-  const { _id: userId } = req.user;
+  const { userId } = req.user;
 
   User
     .findByIdAndUpdate(
@@ -135,16 +139,16 @@ function setUserAvatar(req, res) {
       },
     )
     .then((user) => {
-      if (user) return res.send({ data: user });
+      if (user) return res.send({ user });
 
-      return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
+      throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(ERROR_INACCURATE_DATA).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+        next(new InaccurateDataError('Переданы некорректные данные при обновлении профиля пользователя'));
+      } else {
+        next(err);
       }
-
-      return res.status(ERROR_INTERNAL_SERVER).send({ message: 'На сервере произошла ошибка' });
     });
 }
 
@@ -153,6 +157,7 @@ module.exports = {
   loginUser,
   getUsersInfo,
   getUserInfo,
+  getCurrentUserInfo,
   setUserInfo,
   setUserAvatar,
 };
