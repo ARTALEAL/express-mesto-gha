@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const { Schema } = mongoose;
 
@@ -47,14 +48,31 @@ const userSchema = new Schema(
     avatar: {
       type: String,
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-      validate: {
-        validator: (url) => URL_REGEX.test(url),
-        message: 'Требуется ввести URL',
-      },
+      // validate: {
+      //   validator: (url) => URL_REGEX.test(url),
+      //   message: 'Требуется ввести URL',
+      // },
     },
   },
   {
     versionKey: false,
+    statics: {
+      findUserByCredentials(email, password) {
+        return this
+          .findOne({ email })
+          .select('+password')
+          .then((user) => {
+            if (user) {
+              return bcrypt.compare(password, user.password)
+                .then((matched) => {
+                  if (matched) return user;
+                  return Promise.reject();
+                });
+            }
+            return Promise.reject();
+          });
+      },
+    },
   },
 );
 

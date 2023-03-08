@@ -50,6 +50,21 @@ function createUser(req, res, next) {
   //   ));
 }
 
+function loginUser(req, res, next) {
+  const { email, password } = req.body;
+  User
+    .findUserByCredentials(email, password)
+    .then(({ _id: userId }) => {
+      if (userId) {
+        const token = jwt.sign({ userId }, SECRET_KEY, { expiresIn: '7d' });
+
+        return res.send({ _id: token });
+      }
+      throw new UnauthorizedError('Неправильные почта или пароль');
+    })
+    .catch(next);
+}
+
 function getUsersInfo(req, res) {
   User
     .find({})
@@ -135,6 +150,7 @@ function setUserAvatar(req, res) {
 
 module.exports = {
   createUser,
+  loginUser,
   getUsersInfo,
   getUserInfo,
   setUserInfo,

@@ -1,11 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
+
+const routeSignup = require('./routes/users');
+const routeSignin = require('./routes/users');
 
 const routeUsers = require('./routes/users');
 const routeCards = require('./routes/cards');
 
 const { ERROR_NOT_FOUND } = require('./errors/errors');
+const errorHandler = require('./middlewares/errorHandler');
 
 const { PORT = 3000 } = process.env;
 mongoose.set('strictQuery', true);
@@ -28,11 +33,16 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use('/', routeSignup);
+app.use('/', routeSignin);
 app.use('/users', routeUsers);
 app.use('/cards', routeCards);
 
 app.use((req, res) => {
   res.status(ERROR_NOT_FOUND).send({ message: 'Страницы по запрошенному URL не существует' });
 });
+
+app.use(errors());
+app.use(errorHandler);
 
 app.listen(PORT);
