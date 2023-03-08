@@ -19,7 +19,7 @@ router.post('/signin', celebrate({
     password: Joi.string().required().min(6),
   }),
 }), loginUser);
-
+// signUp
 router.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
