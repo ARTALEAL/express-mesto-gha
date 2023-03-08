@@ -3,28 +3,51 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const { SECRET_KEY } = require('../utils/constants');
+const UnauthorizedError = require('../errors/UnauthorizedError');
+const NotFoundError = require('../errors/NotFoundError');
+const ConflictError = require('../errors/ConfilctError');
+const InaccurateDataError = require('../errors/InaccurateDataError');
 
+// Old errors delete
 const {
   ERROR_INACCURATE_DATA,
   ERROR_NOT_FOUND,
   ERROR_INTERNAL_SERVER,
 } = require('../errors/errors');
 
-function createUser(req, res) {
+function createUser(req, res, next) {
   const {
     email, password, name, about, avatar,
   } = req.body;
-
-  User
-    .create({
-      email, password, name, about, avatar,
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      email, password: hash, name, about, avatar,
+    }))
+    .then((user) => {
+      const { _id } = user;
+      return res.status(201).send({
+        email, name, about, avatar, _id,
+      });
     })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => (
-      err.name === 'ValidationError'
-        ? res.status(ERROR_INACCURATE_DATA).send({ message: 'Переданы некорректные данные при создании пользователя' })
-        : res.status(ERROR_INTERNAL_SERVER).send({ message: 'На сервере произошла ошибка' })
-    ));
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким имейл уже зарегистрирован'));
+      } if (err.name === 'ValidationError') {
+        next(new InaccurateDataError('Переданы некорректные данные при регистрации пользователя'));
+      } else {
+        next(err);
+      }
+    });
+  // User
+  //   .create({
+  //     email, password, name, about, avatar,
+  //   })
+  //   .then((user) => res.send({ data: user }))
+  //   .catch((err) => (
+  //     err.name === 'ValidationError'
+  //       ? res.status(ERROR_INACCURATE_DATA).send({ message: 'Переданы некорректные данные при создании пользователя' })
+  //       : res.status(ERROR_INTERNAL_SERVER).send({ message: 'На сервере произошла ошибка' })
+  //   ));
 }
 
 function getUsersInfo(req, res) {
