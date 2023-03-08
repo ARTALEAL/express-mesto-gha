@@ -1,12 +1,33 @@
 const mongoose = require('mongoose');
+const URL_REGEX = require('../utils/constants');
 
 const { Schema } = mongoose;
 
 const userSchema = new Schema(
   {
-    name: {
+    email: {
       type: String,
       required: true,
+      unique: true,
+      validate: {
+        validator: (email) => /.+@.+\..+/.test(email),
+        message: 'Требуется ввести электронный адрес',
+      },
+    },
+
+    password: {
+      type: String,
+      required: true,
+      select: false,
+      validate: {
+        validator: ({ length }) => length >= 6,
+        message: 'Пароль должен быть не менее 6 символов',
+      },
+    },
+
+    name: {
+      type: String,
+      default: 'Жак-Ив Кусто',
       validate: {
         validator: ({ length }) => length >= 2 && length <= 30,
         message: 'Имя пользователя должно быть длиной от 2 до 30 символов',
@@ -15,7 +36,7 @@ const userSchema = new Schema(
 
     about: {
       type: String,
-      required: true,
+      default: 'Исследователь',
       validate: {
         validator: ({ length }) => length >= 2 && length <= 30,
         message: 'Информация о пользователе должна быть длиной от 2 до 30 символов',
@@ -24,7 +45,11 @@ const userSchema = new Schema(
 
     avatar: {
       type: String,
-      required: true,
+      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+      validate: {
+        validator: (url) => URL_REGEX.test(url),
+        message: 'Требуется ввести URL',
+      },
     },
   },
   {
