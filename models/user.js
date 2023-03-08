@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
-const URL_REGEX = require('../utils/constants');
 
 const { Schema } = mongoose;
+
+const URL_REGEX = require('../utils/constants');
 
 const userSchema = new Schema(
   {

@@ -1,4 +1,8 @@
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+
+const { SECRET_KEY } = require('../utils/constants');
 
 const {
   ERROR_INACCURATE_DATA,
@@ -7,10 +11,14 @@ const {
 } = require('../errors/errors');
 
 function createUser(req, res) {
-  const { name, about, avatar } = req.body;
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
 
   User
-    .create({ name, about, avatar })
+    .create({
+      email, password, name, about, avatar,
+    })
     .then((user) => res.send({ data: user }))
     .catch((err) => (
       err.name === 'ValidationError'
