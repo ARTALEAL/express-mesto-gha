@@ -4,8 +4,8 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 
-const routeSignup = require('./routes/users');
-const routeSignin = require('./routes/users');
+const routeSignup = require('./routes/signup');
+const routeSignin = require('./routes/signin');
 
 const auth = require('./middlewares/auth');
 

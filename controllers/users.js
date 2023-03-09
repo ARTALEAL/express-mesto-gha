@@ -10,22 +10,36 @@ const InaccurateDataError = require('../errors/InaccurateDataError');
 
 function createUser(req, res, next) {
   const {
-    email, password, name, about, avatar,
+    email,
+    password,
+    name,
+    about,
+    avatar,
   } = req.body;
+
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
-      email, password: hash, name, about, avatar,
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
     }))
     .then((user) => {
       const { _id } = user;
+
       return res.status(201).send({
-        email, name, about, avatar, _id,
+        email,
+        name,
+        about,
+        avatar,
+        _id,
       });
     })
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ConflictError('Пользователь с таким имейл уже зарегистрирован'));
-      } if (err.name === 'ValidationError') {
+        next(new ConflictError('Пользователь с таким электронным адресом уже зарегистрирован'));
+      } else if (err.name === 'ValidationError') {
         next(new InaccurateDataError('Переданы некорректные данные при регистрации пользователя'));
       } else {
         next(err);
