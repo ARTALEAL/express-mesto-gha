@@ -1,23 +1,28 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const validator = require('validator');
+const InaccurateDataError = require('../errors/InaccurateDataError');
 // const { URL_REGEX } = require('../utils/constants');
 
 const {
   receiveCards,
-  // createCard,
+  createCard,
   likeCard,
   dislikeCard,
   deleteCard,
 } = require('../controllers/cards');
 
-// router.post('/', celebrate({
-//   body: Joi.object().keys({
-//     name: Joi.string().required().min(2).max(30),
-//     link: Joi.string()
-//       .required()
-//       .pattern(URL_REGEX),
-//   }),
-// }), createCard);
+router.post('/', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().custom((value) => {
+      if (!validator.isURL(value, { require_protocol: true })) {
+        throw new InaccurateDataError('Не правильный URL');
+      }
+      return value;
+    }),
+  }),
+}), createCard);
 
 router.get('/', receiveCards);
 

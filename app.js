@@ -4,8 +4,6 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 
-// const routeSignin = require('./routes/signin');
-
 const auth = require('./middlewares/auth');
 
 const routeUsers = require('./routes/users');
@@ -32,7 +30,7 @@ app.post('/signup', routeUsers);
 app.post('/signin', routeUsers);
 
 app.use(auth);
-
+// Авторизированные пользователи
 app.use('/users', routeUsers);
 app.use('/cards', routeCards);
 

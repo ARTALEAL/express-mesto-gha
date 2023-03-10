@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
-// const { URL_REGEX } = require('../utils/constants');
 const InaccurateDataError = require('../errors/InaccurateDataError');
 
 const {
