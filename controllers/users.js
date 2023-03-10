@@ -109,30 +109,16 @@ function setUserInfo(req, res, next) {
 
 function setUserAvatar(req, res, next) {
   const { avatar } = req.body;
-  const { userId } = req.user;
-
-  User
-    .findByIdAndUpdate(
-      userId,
-      {
-        avatar,
-      },
-      {
-        new: true,
-        runValidators: true,
-      },
-    )
-    .then((user) => {
-      if (user) return res.send({ user });
-
-      throw new NotFoundError('Пользователь с таким id не найден');
-    })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    { new: true, runValidators: true },
+  ).then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new InaccurateDataError('Переданы некорректные данные при обновлении профиля пользователя'));
-      } else {
-        next(err);
       }
+      return next(err);
     });
 }
 
