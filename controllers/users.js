@@ -41,20 +41,6 @@ function createUser(req, res, next) {
     });
 }
 
-// function loginUser(req, res, next) {
-//   const { email, password } = req.body;
-//   User
-//     .findUserByCredentials(email, password)
-//     .then(({ _id: userId }) => {
-//       if (userId) {
-//         const token = jwt.sign({ userId }, SECRET_KEY, { expiresIn: '7d' });
-
-//         return res.send({ _id: token });
-//       }
-//       throw new UnauthorizedError('Неправильные почта или пароль');
-//     })
-//     .catch(next);
-// }
 function loginUser(req, res, next) {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
@@ -95,22 +81,14 @@ function getUserInfo(req, res, next) {
 }
 
 function getCurrentUserInfo(req, res, next) {
-  const { userId } = req.user;
-
+  const { _id } = req.user;
   User
-    .findById(userId)
-    .then((user) => {
-      if (user) return res.send({ user });
-
-      throw new NotFoundError('Пользователь с таким id не найден');
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new InaccurateDataError('Передан некорректный id'));
-      } else {
-        next(err);
+    .findById(_id).then((user) => {
+      if (!user) {
+        return next(new NotFoundError('Пользователь с таким id не найден'));
       }
-    });
+      return res.send(user);
+    }).catch(next);
 }
 
 function setUserInfo(req, res, next) {
