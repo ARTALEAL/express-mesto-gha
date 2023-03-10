@@ -19,7 +19,7 @@ function createCard(req, res, next) {
     .create({ name, link, owner: req.user._id })
     .then((card) => res.status(201).send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new InaccurateDataError('Переданы некорректные данные при создании карточки'));
       } else {
         next(err);
