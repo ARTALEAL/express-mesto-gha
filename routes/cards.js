@@ -2,7 +2,6 @@ const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 const InaccurateDataError = require('../errors/InaccurateDataError');
-// const { URL_REGEX } = require('../utils/constants');
 
 const {
   receiveCards,
@@ -17,7 +16,7 @@ router.post('/', celebrate({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().custom((value) => {
       if (!validator.isURL(value, { require_protocol: true })) {
-        throw new InaccurateDataError('Не правильный URL');
+        throw new InaccurateDataError('Неправильный URL');
       }
       return value;
     }),

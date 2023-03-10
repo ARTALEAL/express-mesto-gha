@@ -41,17 +41,29 @@ function createUser(req, res, next) {
     });
 }
 
+// function loginUser(req, res, next) {
+//   const { email, password } = req.body;
+//   User
+//     .findUserByCredentials(email, password)
+//     .then(({ _id: userId }) => {
+//       if (userId) {
+//         const token = jwt.sign({ userId }, SECRET_KEY, { expiresIn: '7d' });
+
+//         return res.send({ _id: token });
+//       }
+//       throw new UnauthorizedError('Неправильные почта или пароль');
+//     })
+//     .catch(next);
+// }
 function loginUser(req, res, next) {
   const { email, password } = req.body;
-  User
-    .findUserByCredentials(email, password)
-    .then(({ _id: userId }) => {
-      if (userId) {
-        const token = jwt.sign({ userId }, SECRET_KEY, { expiresIn: '7d' });
-
-        return res.send({ _id: token });
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      if (!user || !password) {
+        return next(new UnauthorizedError('Неправильные почта или пароль'));
       }
-      throw new UnauthorizedError('Неправильные почта или пароль');
+      const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
+      return res.send({ token });
     })
     .catch(next);
 }

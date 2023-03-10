@@ -14,11 +14,10 @@ function receiveCards(req, res, next) {
 
 function createCard(req, res, next) {
   const { name, link } = req.body;
-  const { userId } = req.user;
 
   Card
-    .create({ name, link, owner: userId })
-    .then((card) => res.status(201).send({ data: card }))
+    .create({ name, link, owner: req.user._id })
+    .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new InaccurateDataError('Переданы некорректные данные при создании карточки'));
