@@ -1,23 +1,23 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const { URL_REGEX } = require('../utils/constants');
+// const { URL_REGEX } = require('../utils/constants');
 
 const {
   receiveCards,
-  createCard,
+  // createCard,
   likeCard,
   dislikeCard,
   deleteCard,
 } = require('../controllers/cards');
 
-router.post('/', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string()
-      .required()
-      .pattern(URL_REGEX),
-  }),
-}), createCard);
+// router.post('/', celebrate({
+//   body: Joi.object().keys({
+//     name: Joi.string().required().min(2).max(30),
+//     link: Joi.string()
+//       .required()
+//       .pattern(URL_REGEX),
+//   }),
+// }), createCard);
 
 router.get('/', receiveCards);
 
