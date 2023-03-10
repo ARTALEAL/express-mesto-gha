@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 
-const routeSignin = require('./routes/signin');
+// const routeSignin = require('./routes/signin');
 
 const auth = require('./middlewares/auth');
 
@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // Регистрация
 app.post('/signup', routeUsers);
-app.use('/', routeSignin);
+app.post('/signin', routeUsers);
 
 app.use(auth);
 

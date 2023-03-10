@@ -11,7 +11,7 @@ const {
   getCurrentUserInfo,
   setUserInfo,
   // setUserAvatar,
-  // loginUser,
+  loginUser,
 } = require('../controllers/users');
 
 // // signUp
@@ -31,12 +31,12 @@ router.use('/signup', celebrate({
 }), createUser);
 
 // signIn
-// router.post('/signin', celebrate({
-//   body: Joi.object().keys({
-//     email: Joi.string().required().email(),
-//     password: Joi.string().required().min(6),
-//   }),
-// }), loginUser);
+router.use('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(6),
+  }),
+}), loginUser);
 
 router.get('/', getUsersInfo);
 router.get('/me', getCurrentUserInfo);
