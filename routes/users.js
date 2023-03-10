@@ -10,7 +10,7 @@ const {
   getUserInfo,
   getCurrentUserInfo,
   setUserInfo,
-  // setUserAvatar,
+  setUserAvatar,
   loginUser,
 } = require('../controllers/users');
 
@@ -54,12 +54,15 @@ router.patch('/me', celebrate({
   }),
 }), setUserInfo);
 
-// router.patch('/me/avatar', celebrate({
-//   body: Joi.object().keys({
-//     avatar: Joi
-//       .string()
-//       .pattern(URL_REGEX),
-//   }),
-// }), setUserAvatar);
+router.patch('/me/avatar', celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().custom((value) => {
+      if (!validator.isURL(value, { require_protocol: true })) {
+        throw new InaccurateDataError('Не правильный URL');
+      }
+      return value;
+    }),
+  }),
+}), setUserAvatar);
 
 module.exports = router;
