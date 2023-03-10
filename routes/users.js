@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
-const { URL_REGEX } = require('../utils/constants');
+// const { URL_REGEX } = require('../utils/constants');
 const InaccurateDataError = require('../errors/InaccurateDataError');
 
 const {
@@ -10,12 +10,12 @@ const {
   getUserInfo,
   getCurrentUserInfo,
   setUserInfo,
-  setUserAvatar,
+  // setUserAvatar,
   // loginUser,
 } = require('../controllers/users');
 
 // // signUp
-router.post('/signup', celebrate({
+router.use('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(6),

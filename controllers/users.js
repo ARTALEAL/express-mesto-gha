@@ -26,6 +26,7 @@ function createUser(req, res, next) {
       about: req.body.about,
       avatar: req.body.avatar,
     }))
+    .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new InaccurateDataError('Переданы некорректные данные пользователя или ссылка на аватар'));
