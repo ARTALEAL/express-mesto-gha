@@ -27,6 +27,30 @@ function createCard(req, res, next) {
     });
 }
 
+function deleteCard(req, res, next) {
+  const { cardId } = req.params;
+  const userId = req.user._id;
+  console.log(req);
+  console.log(userId);
+  Card
+    .findById(cardId)
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка по указанному id не найдена');
+      }
+      if (card.owner.valueOf() !== userId) {
+        console.log(userId);
+        console.log(card.owner.valueOf());
+        throw new ForbiddenError('Нельзя удалить чужую карточку');
+      }
+      card
+        .findByIdAndRemove(cardId)
+        .then((deletedCard) => res.send(deletedCard))
+        .catch(next);
+    })
+    .catch(next);
+}
+
 function likeCard(req, res, next) {
   const { cardId } = req.params;
   const { userId } = req.user;
@@ -85,27 +109,6 @@ function dislikeCard(req, res, next) {
         next(err);
       }
     });
-}
-
-function deleteCard(req, res, next) {
-  const { cardId } = req.params;
-  const { userId } = req.user;
-
-  Card
-    .findById(cardId)
-    .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка по указанному id не найдена');
-      }
-      if (card.owner.valueOf() !== userId) {
-        throw new ForbiddenError('Нальзя удалить чужую карточку');
-      }
-      card
-        .findByIdAndRemove(cardId)
-        .then((deletedCard) => res.send(deletedCard))
-        .catch(next);
-    })
-    .catch(next);
 }
 
 module.exports = {
