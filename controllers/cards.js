@@ -89,7 +89,7 @@ function dislikeCard(req, res, next) {
 
 function deleteCard(req, res, next) {
   const { cardId } = req.params;
-  const { _id } = req.user;
+  const { userId } = req.user;
 
   Card
     .findById(cardId)
@@ -97,7 +97,7 @@ function deleteCard(req, res, next) {
       if (!card) {
         throw new NotFoundError('Карточка по указанному id не найдена');
       }
-      if (card.owner.valueOf() !== _id) {
+      if (card.owner.valueOf() !== userId) {
         throw new ForbiddenError('Нальзя удалить чужую карточку');
       }
       card
