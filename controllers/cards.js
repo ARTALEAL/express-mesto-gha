@@ -92,9 +92,7 @@ function deleteCard(req, res, next) {
   const { _id } = req.user;
 
   Card
-    .findById({
-      _id: cardId,
-    })
+    .findById(cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка по указанному id не найдена');

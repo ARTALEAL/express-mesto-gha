@@ -37,7 +37,7 @@ router.delete('/:cardId/likes', celebrate({
   }),
 }), dislikeCard);
 
-router.delete('/cards/:id', celebrate({
+router.delete('/:id', celebrate({
   params: Joi.object().keys({
     id: Joi.string().length(24).hex().required(),
   }),
