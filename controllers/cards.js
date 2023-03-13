@@ -89,21 +89,22 @@ function dislikeCard(req, res, next) {
 
 function deleteCard(req, res, next) {
   const { id: cardId } = req.params;
-  const { userId } = req.user;
+  const { _id } = req.user;
 
   Card
     .findById({
       _id: cardId,
     })
     .then((card) => {
-      if (!card) throw new NotFoundError('Данные по указанному id не найдены');
-
-      const { owner: cardOwnerId } = card;
-      if (cardOwnerId.valueOf() !== userId) throw new ForbiddenError('Нет прав доступа');
-
+      if (!card) {
+        throw new NotFoundError('Карточка по указанному id не найдена');
+      }
+      if (card.owner.valueOf() !== _id) {
+        throw new ForbiddenError('Нальзя удалить чужую карточку');
+      }
       card
-        .remove()
-        .then(() => res.send({ data: card }))
+        .findByIdAndRemove(cardId)
+        .then((deletedCard) => res.send(deletedCard))
         .catch(next);
     })
     .catch(next);
