@@ -88,7 +88,7 @@ function dislikeCard(req, res, next) {
 }
 
 function deleteCard(req, res, next) {
-  const { id: cardId } = req.params;
+  const { cardId } = req.params;
   const { _id } = req.user;
 
   Card
