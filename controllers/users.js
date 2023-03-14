@@ -10,15 +10,7 @@ const InaccurateDataError = require('../errors/InaccurateDataError');
 
 function createUser(req, res, next) {
   const { email, password } = req.body;
-  if (!email || !password) {
-    next(new InaccurateDataError('Переданы некорректные данные при регистрации пользователя'));
-  }
-  return User.findOne({ email }).then((user) => {
-    if (user) {
-      next(new ConflictError('Пользователь с таким электронным адресом уже зарегистрирован'));
-    }
-    return bcrypt.hash(password, 10);
-  })
+  bcrypt.hash(password, 10)
     .then((hash) => User.create({
       email,
       password: hash,
@@ -34,12 +26,48 @@ function createUser(req, res, next) {
       email: user.email,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким электронным адресом уже зарегистрирован'));
+      } else if (err.name === 'ValidationError') {
         next(new InaccurateDataError('Переданы некорректные данные пользователя или ссылка на аватар'));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 }
+
+// function createUser(req, res, next) {
+//   const { email, password } = req.body;
+//   if (!email || !password) {
+//     next(new InaccurateDataError('Переданы некорректные данные при регистрации пользователя'));
+//   }
+//   return User.findOne({ email }).then((user) => {
+//     if (user) {
+//       next(new ConflictError('Пользователь с таким электронным адресом уже зарегистрирован'));
+//     }
+//     return bcrypt.hash(password, 10);
+//   })
+//     .then((hash) => User.create({
+//       email,
+//       password: hash,
+//       name: req.body.name,
+//       about: req.body.about,
+//       avatar: req.body.avatar,
+//     }))
+//     .then((user) => res.send({
+//       name: user.name,
+//       about: user.about,
+//       avatar: user.avatar,
+//       _id: user._id,
+//       email: user.email,
+//     }))
+//     .catch((err) => {
+//       if (err.name === 'ValidationError') {
+//         next(new InaccurateDataError('Переданы некорректные данные пользователя или ссылка на аватар'));
+//       }
+//       return next(err);
+//     });
+// }
 
 function loginUser(req, res, next) {
   const { email, password } = req.body;
