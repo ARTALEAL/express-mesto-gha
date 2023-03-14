@@ -22,10 +22,6 @@ const userSchema = new Schema(
       type: String,
       required: true,
       select: false,
-      // validate: {
-      //   validator: ({ length }) => length >= 6,
-      //   message: 'Пароль должен быть не менее 6 символов',
-      // },
     },
 
     name: {
